@@ -6,10 +6,16 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
-# Read events from the connectd binary protocol over the network via udp.
+class ProtocolError < LogStash::Error; end
+class HeaderError < LogStash::Error; end
+class EncryptionError < LogStash::Error; end
+class NaNError < LogStash::Error; end
+
+# Read events from the collectd binary protocol over the network via udp.
 # See https://collectd.org/wiki/index.php/Binary_protocol
 #
 # Configuration in your Logstash configuration file can be as simple as:
+# [source,ruby]
 #     input {
 #       udp {
 #         port => 28526
@@ -18,8 +24,8 @@ require "time"
 #       }
 #     }
 #
-# A sample collectd.conf to send to Logstash might be:
-#
+# A sample `collectd.conf` to send to Logstash might be:
+# [source,xml]
 #     Hostname    "host.example.com"
 #     LoadPlugin interface
 #     LoadPlugin load
@@ -34,14 +40,8 @@ require "time"
 #         </Server>
 #     </Plugin>
 #
-# Be sure to replace "10.0.0.1" with the IP of your Logstash instance.
+# Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
 #
-
-class ProtocolError < LogStash::Error; end
-class HeaderError < LogStash::Error; end
-class EncryptionError < LogStash::Error; end
-class NaNError < LogStash::Error; end
-
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   config_name "collectd"
   milestone 1
@@ -106,37 +106,38 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   SECURITY_SIGN = "Sign"
   SECURITY_ENCR = "Encrypt"
 
-  # File path(s) to collectd types.db to use.
+  # File path(s) to collectd `types.db` to use.
   # The last matching pattern wins if you have identical pattern names in multiple files.
-  # If no types.db is provided the included types.db will be used (currently 5.4.0).
+  # If no types.db is provided the included `types.db` will be used (currently 5.4.0).
   config :typesdb, :validate => :array
 
-  # Prune interval records.  Defaults to true.
+  # Prune interval records.  Defaults to `true`.
   config :prune_intervals, :validate => :boolean, :default => true
 
-  # Security Level. Default is "None". This setting mirrors the setting from the
-  # collectd [Network plugin](https://collectd.org/wiki/index.php/Plugin:Network)
+  # Security Level. Default is `None`. This setting mirrors the setting from the
+  # collectd https://collectd.org/wiki/index.php/Plugin:Network[Network plugin]
   config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR],
     :default => "None"
   
-  # What to do when a value in the event is NaN (Not a Number)
-  # - change_value (default): Change the NaN to the value of the nan_value option and add nan_tag as a tag
-  # - warn: Change the NaN to the value of the nan_value option, print a warning to the log and add nan_tag as a tag
-  # - drop: Drop the event containing the NaN (this only drops the single event, not the whole packet)
+  # What to do when a value in the event is `NaN` (Not a Number)
+  #
+  # - change_value (default): Change the `NaN` to the value of the nan_value option and add `nan_tag` as a tag
+  # - warn: Change the `NaN` to the value of the nan_value option, print a warning to the log and add `nan_tag` as a tag
+  # - drop: Drop the event containing the `NaN` (this only drops the single event, not the whole packet)
   config :nan_handling, :validate => ['change_value','warn','drop'], :default => 'change_value'
   
-  # Only relevant when nan_handeling is set to 'change_value'
+  # Only relevant when `nan_handeling` is set to `change_value`
   # Change NaN to this configured value
   config :nan_value, :validate => :number, :default => 0
   
-  # The tag to add to the event if a NaN value was found
+  # The tag to add to the event if a `NaN` value was found
   # Set this to an empty string ('') if you don't want to tag
   config :nan_tag, :validate => :string, :default => '_collectdNaN'
 
   # Path to the authentication file. This file should have the same format as
-  # the [AuthFile](http://collectd.org/documentation/manpages/collectd.conf.5.shtml#authfile_filename)
-  # in collectd. You only need to set this option if the security_level is set to
-  # "Sign" or "Encrypt"
+  # the http://collectd.org/documentation/manpages/collectd.conf.5.shtml#authfile_filename[AuthFile]
+  # in collectd. You only need to set this option if the `security_level` is set to
+  # `Sign` or `Encrypt`
   config :authfile, :validate => :string
 
   public
