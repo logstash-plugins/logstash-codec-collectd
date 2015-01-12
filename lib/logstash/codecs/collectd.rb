@@ -18,7 +18,7 @@ class NaNError < LogStash::Error; end
 # [source,ruby]
 #     input {
 #       udp {
-#         port => 28526
+#         port => 25826
 #         buffer_size => 1452
 #         codec => collectd { }
 #       }
