@@ -44,7 +44,6 @@ class NaNError < LogStash::Error; end
 #
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   config_name "collectd"
-  milestone 1
 
   AUTHFILEREGEX = /([^:]+): (.+)/
 
