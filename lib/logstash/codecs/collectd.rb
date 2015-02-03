@@ -72,6 +72,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   PLUGIN_TYPE_FIELDS = {
     'host' => true,
     '@timestamp' => true,
+    'type_instance' => true,
   }
 
   COLLECTD_TYPE_FIELDS = {
@@ -117,18 +118,18 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   # collectd https://collectd.org/wiki/index.php/Plugin:Network[Network plugin]
   config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR],
     :default => "None"
-  
+
   # What to do when a value in the event is `NaN` (Not a Number)
   #
   # - change_value (default): Change the `NaN` to the value of the nan_value option and add `nan_tag` as a tag
   # - warn: Change the `NaN` to the value of the nan_value option, print a warning to the log and add `nan_tag` as a tag
   # - drop: Drop the event containing the `NaN` (this only drops the single event, not the whole packet)
   config :nan_handling, :validate => ['change_value','warn','drop'], :default => 'change_value'
-  
+
   # Only relevant when `nan_handeling` is set to `change_value`
   # Change NaN to this configured value
   config :nan_value, :validate => :number, :default => 0
-  
+
   # The tag to add to the event if a `NaN` value was found
   # Set this to an empty string ('') if you don't want to tag
   config :nan_tag, :validate => :string, :default => '_collectdNaN'
@@ -396,7 +397,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
       length  = ((payload.slice!(0) << 8) + payload.slice!(0)) - 4
       # Validate that the part length is correct
       raise(HeaderError) if length > payload.length
-      
+
       body = payload.slice!(0..length-1)
 
       field = TYPEMAP[typenum]
