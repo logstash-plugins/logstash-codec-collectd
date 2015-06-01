@@ -72,6 +72,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   PLUGIN_TYPE_FIELDS = {
     'host' => true,
     '@timestamp' => true,
+    'type_instance' => true,
     'severity' => true,
   }
 
