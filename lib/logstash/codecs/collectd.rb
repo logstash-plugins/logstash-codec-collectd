@@ -73,6 +73,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     'host' => true,
     '@timestamp' => true,
     'type_instance' => true,
+    'severity' => true,
   }
 
   COLLECTD_TYPE_FIELDS = {
@@ -81,11 +82,13 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     'plugin' => true,
     'plugin_instance' => true,
     'type_instance' => true,
+    'severity' => true,
   }
 
   INTERVAL_VALUES_FIELDS = {
     "interval" => true,
     "values" => true,
+    "message" => true,
   }
 
   INTERVAL_BASE_FIELDS = {
@@ -273,7 +276,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
       8 => hirestime_decoder,
       9 => hiresinterval_decoder,
       256 => string_decoder,
-      257 => numeric_decoder,
+      257 => counter_decoder,
       512 => signature_decoder,
       528 => encryption_decoder
     }
