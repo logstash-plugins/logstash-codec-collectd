@@ -35,12 +35,11 @@ describe LogStash::Codecs::Collectd do
     end # it "should parse a normal packet"
 
     it "should parse a packet with a message and a severity" do
-      payload = "000211161011151164610112097109112108101469911110900101200008510919818507012000000010020910811197100003091081119710000409108111971000110120000000210017841011151163277101115115971031010"
+      payload = ["0001000c00000000556dd2fa0101000c000000000000000200000015746573742e6578616d706c652e636f6d00000200096c6f616400000400096c6f6164000100001154657374204d65737361676500"].pack('H*')
 
       subject.decode(payload) do |event|
         expect(event['host']).to eq("test.example.com")
         expect(event['plugin']).to eq("load")
-        expect(event['plugin_instance']).to eq("load")
         expect(event['collectd_type']).to eq("load")
         expect(event['message']).to eq("Test Message")
         expect(event['severity']).to eq(2)
