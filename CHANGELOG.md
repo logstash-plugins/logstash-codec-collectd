@@ -1,5 +1,5 @@
-# 1.0.2
-  * sync access to OpenSSL::Cipher (not thread-safe)
+# 2.0.0
+  * synchronize access to OpenSSL::Cipher (not thread-safe)
   * use Digest for digests instead of OpenSSL::Digest and OpenSSL::HMAC (not thread-safe)
   * fix collectd packet mangling under high load conditions
 # 1.0.1
