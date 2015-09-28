@@ -45,6 +45,8 @@ class NaNError < LogStash::Error; end
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   config_name "collectd"
 
+  @@openssl_mutex = Mutex.new
+
   AUTHFILEREGEX = /([^:]+): (.+)/
 
   PLUGIN_TYPE = 2
@@ -160,11 +162,15 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
       if @authfile.nil?
         raise "Security level is set to #{@security_level}, but no authfile was configured"
       else
-        # Load OpenSSL and instantiate Digest and Crypto functions
+        # Load Digest and instantiate functions
+        require 'digest'
+        @sha256 = Digest::SHA256.new
+        @sha1 = Digest::SHA1.new
+
+        # Load OpenSSL and instantiate functions
         require 'openssl'
-        @sha256 = OpenSSL::Digest::Digest.new('sha256')
-        @sha1 = OpenSSL::Digest::Digest.new('sha1')
         @cipher = OpenSSL::Cipher.new('AES-256-OFB')
+
         @auth = {}
         parse_authfile
       end
@@ -364,16 +370,20 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
       return []
     end
 
-    # Set the correct state of the cipher instance
-    @cipher.decrypt
-    @cipher.padding = 0
-    @cipher.iv = iv
-    @cipher.key = @sha256.digest(key);
-    # Decrypt the content
-    plaintext = @cipher.update(content) + @cipher.final
-    # Reset the state, as adding a new key to an already instantiated state
-    # results in an exception
-    @cipher.reset
+    # Coordinate access to OpenSSL::Cipher as it is not thread safe
+    plaintext = nil
+    @@openssl_mutex.synchronize do
+      # Set the correct state of the cipher instance
+      @cipher.decrypt
+      @cipher.padding = 0
+      @cipher.iv = iv
+      @cipher.key = @sha256.digest(key)
+      # Decrypt the content
+      plaintext = @cipher.update(content) + @cipher.final
+      # Reset the state, as adding a new key to an already instantiated state
+      # results in an exception
+      @cipher.reset
+    end
 
     # The plaintext contains a SHA1 hash as checksum in the first 160 bits
     # (20 octets) of the rest of the data
