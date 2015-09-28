@@ -51,6 +51,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
 
   PLUGIN_TYPE = 2
   COLLECTD_TYPE = 4
+  COLLECTD_VALUES = 6
   SIGNATURE_TYPE = 512
   ENCRYPTION_TYPE = 528
 
@@ -61,7 +62,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     3               => "plugin_instance",
     COLLECTD_TYPE   => "collectd_type",
     5               => "type_instance",
-    6               => "values",
+    COLLECTD_VALUES => "values",
     7               => "interval",
     8               => "@timestamp",
     9               => "interval",
@@ -69,22 +70,6 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     257             => "severity",
     SIGNATURE_TYPE  => "signature",
     ENCRYPTION_TYPE => "encryption"
-  }
-
-  PLUGIN_TYPE_FIELDS = {
-    'host' => true,
-    '@timestamp' => true,
-    'type_instance' => true,
-    'severity' => true,
-  }
-
-  COLLECTD_TYPE_FIELDS = {
-    'host' => true,
-    '@timestamp' => true,
-    'plugin' => true,
-    'plugin_instance' => true,
-    'type_instance' => true,
-    'severity' => true,
   }
 
   INTERVAL_VALUES_FIELDS = {
@@ -95,10 +80,10 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
 
   INTERVAL_BASE_FIELDS = {
     'host' => true,
-    'collectd_type' => true,
+    '@timestamp' => true,
     'plugin' => true,
     'plugin_instance' => true,
-    '@timestamp' => true,
+    'collectd_type' => true,
     'type_instance' => true,
   }
 
@@ -213,7 +198,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
       byte1, byte2 = body.pack("C*").unpack("NN")
       Time.at(( ((byte1 << 32) + byte2) * (2**-30) )).utc
     end
-    # Hi resolution intervals
+    # Hi-Resolution intervals
     hiresinterval_decoder = lambda do |body|
       byte1, byte2 = body.pack("C*").unpack("NN")
       Time.at(( ((byte1 << 32) + byte2) * (2**-30) )).to_i
@@ -303,7 +288,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   def get_values(id, body)
     drop = false
     add_tag = false
-    if id == 6
+    if id == COLLECTD_VALUES
       retval, drop, add_nan_tag = @id_decoder[id].call(body)
     # Use hash + closure/lambda to speed operations
     else
@@ -430,19 +415,6 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
         raise(EncryptionError) if payload.empty?
         was_encrypted = true
         next
-      when PLUGIN_TYPE
-        # We've reached a new plugin, delete everything except for the the host
-        # field, because there's only one per packet and the timestamp field,
-        # because that one goes in front of the plugin
-        collectd.each_key do |k|
-          collectd.delete(k) unless PLUGIN_TYPE_FIELDS.has_key?(k)
-        end
-      when COLLECTD_TYPE
-        # We've reached a new type within the plugin section, delete all fields
-        # that could have something to do with the previous type (if any)
-        collectd.each_key do |k|
-          collectd.delete(k) unless COLLECTD_TYPE_FIELDS.has_key?(k)
-        end
       end
 
       raise(EncryptionError) if !was_encrypted and @security_level == SECURITY_ENCR
