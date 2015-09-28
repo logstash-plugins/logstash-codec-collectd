@@ -340,7 +340,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     key = get_key(user)
     return false if key.nil?
 
-    return OpenSSL::HMAC.digest(@sha256, key, user+payload) == signature
+    return Digest::HMAC.digest(user+payload, key, Digest::SHA256) == signature
   end # def verify_signature
 
   private
