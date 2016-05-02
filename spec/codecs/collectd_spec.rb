@@ -17,17 +17,17 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("lieters-klaptop.prot.plexis.eu")
-          expect(event['plugin']).to eq("interface")
-          expect(event['plugin_instance']).to eq("wlan0")
-          expect(event['collectd_type']).to eq("if_errors")
-          expect(event['rx']).to eq(0)
-          expect(event['tx']).to eq(0)
+          expect(event.get("host")).to eq("lieters-klaptop.prot.plexis.eu")
+          expect(event.get("plugin")).to eq("interface")
+          expect(event.get("plugin_instance")).to eq("wlan0")
+          expect(event.get("collectd_type")).to eq("if_errors")
+          expect(event.get("rx")).to eq(0)
+          expect(event.get("tx")).to eq(0)
         when 2
-          expect(event['host']).to eq("lieters-klaptop.prot.plexis.eu")
-          expect(event['plugin']).to eq("entropy")
-          expect(event['collectd_type']).to eq("entropy")
-          expect(event['value']).to eq(157.0)
+          expect(event.get("host")).to eq("lieters-klaptop.prot.plexis.eu")
+          expect(event.get("plugin")).to eq("entropy")
+          expect(event.get("collectd_type")).to eq("entropy")
+          expect(event.get("value")).to eq(157.0)
         end
         counter += 1
       end
@@ -41,9 +41,9 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 29
-          expect(event['host']).to eq("test.example.com")
-          expect(event['plugin']).to eq("load")
-          expect(event['collectd_type']).to eq("load")
+          expect(event.get("host")).to eq("test.example.com")
+          expect(event.get("plugin")).to eq("load")
+          expect(event.get("collectd_type")).to eq("load")
           expect(event['message']).to eq("Test Message")
           expect(event['severity']).to eq(2)
         end
@@ -58,17 +58,17 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("lieters-klaptop.prot.plexis.eu")
-          expect(event['plugin']).to eq("interface")
-          expect(event['plugin_instance']).to eq("wlan0")
-          expect(event['collectd_type']).to eq("if_errors")
-          expect(event['rx']).to eq(0)
-          expect(event['tx']).to eq(0)
+          expect(event.get("host")).to eq("lieters-klaptop.prot.plexis.eu")
+          expect(event.get("plugin")).to eq("interface")
+          expect(event.get("plugin_instance")).to eq("wlan0")
+          expect(event.get("collectd_type")).to eq("if_errors")
+          expect(event.get("rx")).to eq(0)
+          expect(event.get("tx")).to eq(0)
         when 2
-          expect(event['host']).to eq("lieters-klaptop.prot.plexis.eu")
-          expect(event['plugin']).to eq("entropy")
-          expect(event['collectd_type']).to eq("entropy")
-          expect(event['value']).to eq(157.0)
+          expect(event.get("host")).to eq("lieters-klaptop.prot.plexis.eu")
+          expect(event.get("plugin")).to eq("entropy")
+          expect(event.get("collectd_type")).to eq("entropy")
+          expect(event.get("value")).to eq(157.0)
         end
         counter += 1
       end
@@ -83,12 +83,12 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("test.example.com")
-          expect(event['plugin']).to eq("ping")
-          expect(event['type_instance']).to eq("ping-target.example.com")
-          expect(event['collectd_type']).to eq("ping")
-          expect(event['value']).to eq(0)   # Not a NaN
-          expect(event['tags']).to eq(["_collectdNaN"])
+          expect(event.get("host")).to eq("test.example.com")
+          expect(event.get("plugin")).to eq("ping")
+          expect(event.get("type_instance")).to eq("ping-target.example.com")
+          expect(event.get("collectd_type")).to eq("ping")
+          expect(event.get("value")).to eq(0)   # Not a NaN
+          expect(event.get("tags")).to eq(["_collectdNaN"])
         end
         counter += 1
       end
@@ -108,12 +108,12 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("test.example.com")
-          expect(event['plugin']).to eq("ping")
-          expect(event['type_instance']).to eq("ping-target.example.com")
-          expect(event['collectd_type']).to eq("ping")
-          expect(event['value']).to eq(1)   # Not a NaN
-          expect(event['tags']).to eq(["NaN_encountered"])
+          expect(event.get("host")).to eq("test.example.com")
+          expect(event.get("plugin")).to eq("ping")
+          expect(event.get("type_instance")).to eq("ping-target.example.com")
+          expect(event.get("collectd_type")).to eq("ping")
+          expect(event.get("value")).to eq(1)   # Not a NaN
+          expect(event.get("tags")).to eq(["NaN_encountered"])
         end
         counter += 1
       end
@@ -133,11 +133,11 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("test.example.com")
-          expect(event['plugin']).to eq("ping")
-          expect(event['type_instance']).to eq("ping-target.example.com")
-          expect(event['collectd_type']).to eq("ping")
-          expect(event['value']).to eq(0)   # Not a NaN
+          expect(event.get("host")).to eq("test.example.com")
+          expect(event.get("plugin")).to eq("ping")
+          expect(event.get("type_instance")).to eq("ping-target.example.com")
+          expect(event.get("collectd_type")).to eq("ping")
+          expect(event.get("value")).to eq(0)   # Not a NaN
         end
         counter += 1
       end
@@ -156,11 +156,11 @@ describe LogStash::Codecs::Collectd do
       subject.decode(payload) do |event|
         case counter
         when 0
-          expect(event['host']).to eq("test.example.com")
-          expect(event['plugin']).to eq("ping")
-          expect(event['type_instance']).to eq("ping-target.example.com")
-          expect(event['collectd_type']).to eq("ping")
-          expect(event['value']).to eq(NaN)   # NaN
+          expect(event.get("host")).to eq("test.example.com")
+          expect(event.get("plugin")).to eq("ping")
+          expect(event.get("type_instance")).to eq("ping-target.example.com")
+          expect(event.get("collectd_type")).to eq("ping")
+          expect(event.get("value")).to eq(NaN)   # NaN
         end
         counter += 1 # Because we're dropping this, it should not increment
       end
