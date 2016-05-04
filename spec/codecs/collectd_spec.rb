@@ -44,8 +44,8 @@ describe LogStash::Codecs::Collectd do
           expect(event.get("host")).to eq("test.example.com")
           expect(event.get("plugin")).to eq("load")
           expect(event.get("collectd_type")).to eq("load")
-          expect(event['message']).to eq("Test Message")
-          expect(event['severity']).to eq(2)
+          expect(event.get("message")).to eq("Test Message")
+          expect(event.get("severity")).to eq(2)
         end
         counter += 1
       end
