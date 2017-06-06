@@ -1,3 +1,6 @@
+## 3.0.4
+  - Make this plugins compatible with JRuby 9 by using the OpenSSL::HMAC class and keep it backward compatible with JRuby 1.7.25 (Issue #24)
+
 ## 3.0.3
   - Fix log levels
 

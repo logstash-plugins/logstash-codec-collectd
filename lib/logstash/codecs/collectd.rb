@@ -6,6 +6,8 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
+import "javax.crypto.Mac"
+
 class ProtocolError < LogStash::Error; end
 class HeaderError < LogStash::Error; end
 class EncryptionError < LogStash::Error; end
@@ -339,9 +341,28 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
 
     key = get_key(user)
     return false if key.nil?
-
-    return Digest::HMAC.digest(user+payload, key, Digest::SHA256) == signature
+    return digest(user, payload, key) == signature
   end # def verify_signature
+
+  private
+  def digest_ruby19(user, payload, key)
+    Digest::HMAC.digest(user+payload, key , Digest::SHA256)
+  end
+
+  private
+  def digest_ruby20(user, payload, key)
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new("sha256"), key, user+payload)
+  end
+
+  def self.ruby_19?
+    RUBY_VERSION == "1.9.3"
+  end
+
+  if ruby_19?
+    alias_method :digest, :digest_ruby19
+  else
+    alias_method :digest, :digest_ruby20
+  end
 
   private
   def decrypt_packet(user, iv, content)
