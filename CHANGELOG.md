@@ -1,3 +1,9 @@
+## 3.0.6
+  - Return types.db to the list of items to be included in the gem
+
+## 3.0.5
+  - Minor documentation changes for better flow and understanding
+
 ## 3.0.4
   - Make this plugins compatible with JRuby 9 by using the OpenSSL::HMAC class and keep it backward compatible with JRuby 1.7.25 (Issue #24)
 
