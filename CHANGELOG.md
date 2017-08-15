@@ -1,3 +1,6 @@
+## 3.0.7
+  - Fix some documentation issues
+
 ## 3.0.6
   - Return types.db to the list of items to be included in the gem
 
