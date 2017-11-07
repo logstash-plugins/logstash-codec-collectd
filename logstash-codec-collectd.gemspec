@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name            = 'logstash-codec-collectd'
-  s.version         = '3.0.7'
+  s.version         = '3.0.8'
   s.licenses        = ['Apache License (2.0)']
-  s.summary         = "Read events from the collectd binary protocol"
+  s.summary         = "Reads events from the `collectd` binary protocol using UDP."
   s.description     = "This gem is a Logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/logstash-plugin install gemname. This gem is not a stand-alone program"
   s.authors         = ["Elastic"]
   s.email           = 'info@elastic.co'
