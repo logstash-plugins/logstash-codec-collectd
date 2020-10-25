@@ -45,8 +45,7 @@ A sample `collectd.conf` to send to Logstash might be:
         IgnoreSelected false
     </Plugin>
     <Plugin network>
-        <Server "10.0.0.1" "25826">
-        </Server>
+        Server "10.0.0.1" "25826"
     </Plugin>
 
 Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
