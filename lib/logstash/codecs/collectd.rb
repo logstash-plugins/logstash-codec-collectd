@@ -488,8 +488,9 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
         end
       end
     end # while payload.length > 0 do
-  rescue EncryptionError, ProtocolError, HeaderError, NaNError
+  rescue EncryptionError, ProtocolError, HeaderError, NaNError => e
     # basically do nothing, we just want out
+    @logger.debug("Decode failure", payload: payload, exception: e.class, message: e.message)
   end # def decode
 
 end # class LogStash::Codecs::Collectd
