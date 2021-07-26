@@ -6,11 +6,6 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
-class ProtocolError < LogStash::Error; end
-class HeaderError < LogStash::Error; end
-class EncryptionError < LogStash::Error; end
-class NaNError < LogStash::Error; end
-
 # Read events from the collectd binary protocol over the network via udp.
 # See https://collectd.org/wiki/index.php/Binary_protocol
 #
@@ -44,6 +39,11 @@ class NaNError < LogStash::Error; end
 #
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   config_name "collectd"
+
+  class ProtocolError < LogStash::Error; end
+  class HeaderError < LogStash::Error; end
+  class EncryptionError < LogStash::Error; end
+  class NaNError < LogStash::Error; end
 
   @@openssl_mutex = Mutex.new
 
