@@ -6,6 +6,8 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
+require 'logstash/plugin_mixins/event_support/event_factory_adapter'
+
 # Read events from the collectd binary protocol over the network via udp.
 # See https://collectd.org/wiki/index.php/Binary_protocol
 #
@@ -38,6 +40,9 @@ require "time"
 # Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
 #
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
+
+  include LogStash::PluginMixins::EventSupport::EventFactoryAdapter
+
   config_name "collectd"
 
   class ProtocolError < LogStash::Error; end
@@ -472,7 +477,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
           # This ugly little shallow-copy hack keeps the new event from getting munged by the cleanup
           # With pass-by-reference we get hosed (if we pass collectd, then clean it up rapidly, values can disappear)
           if !drop # Drop the event if it's flagged true
-            yield LogStash::Event.new(collectd.dup)
+            yield event_factory.new_event(collectd.dup)
           else
             raise(NaNError)
           end
