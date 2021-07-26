@@ -6,8 +6,6 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
-import "javax.crypto.Mac"
-
 class ProtocolError < LogStash::Error; end
 class HeaderError < LogStash::Error; end
 class EncryptionError < LogStash::Error; end
