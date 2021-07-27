@@ -110,8 +110,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
 
   # Security Level. Default is `None`. This setting mirrors the setting from the
   # collectd https://collectd.org/wiki/index.php/Plugin:Network[Network plugin]
-  config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR],
-    :default => "None"
+  config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR], :default => "None"
 
   # What to do when a value in the event is `NaN` (Not a Number)
   #
