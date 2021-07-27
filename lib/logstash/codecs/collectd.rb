@@ -33,8 +33,7 @@ require 'logstash/plugin_mixins/event_support/event_factory_adapter'
 #         IgnoreSelected false
 #     </Plugin>
 #     <Plugin network>
-#         <Server "10.0.0.1" "25826">
-#         </Server>
+#         Server "10.0.0.1" "25826"
 #     </Plugin>
 #
 # Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
