@@ -468,14 +468,10 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
           # This is better than looping over all keys every time.
           collectd.delete('type_instance') if collectd['type_instance'] == ""
           collectd.delete('plugin_instance') if collectd['plugin_instance'] == ""
-          if add_nan_tag
-            collectd['tags'] ||= []
-            collectd['tags'] << @nan_tag
-          end
           # This ugly little shallow-copy hack keeps the new event from getting munged by the cleanup
           # With pass-by-reference we get hosed (if we pass collectd, then clean it up rapidly, values can disappear)
           if !drop # Drop the event if it's flagged true
-            yield event_factory.new_event(collectd.dup)
+            yield generate_event(collectd.dup, add_nan_tag)
           else
             raise(NaNError)
           end
@@ -490,5 +486,11 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     # basically do nothing, we just want out
     @logger.debug("Decode failure", payload: payload, message: e.message)
   end # def decode
+
+  def generate_event(payload, add_nan_tag)
+    event = event_factory.new_event(payload)
+    event.tag @nan_tag if add_nan_tag
+    event
+  end
 
 end # class LogStash::Codecs::Collectd
