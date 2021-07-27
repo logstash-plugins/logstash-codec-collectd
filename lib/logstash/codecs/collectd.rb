@@ -7,6 +7,7 @@ require "tempfile"
 require "time"
 
 require 'logstash/plugin_mixins/event_support/event_factory_adapter'
+require 'logstash/plugin_mixins/validator_support/field_reference_validation_adapter'
 
 # Read events from the collectd binary protocol over the network via udp.
 # See https://collectd.org/wiki/index.php/Binary_protocol
@@ -39,6 +40,8 @@ require 'logstash/plugin_mixins/event_support/event_factory_adapter'
 # Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
 #
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
+
+  extend LogStash::PluginMixins::ValidatorSupport::FieldReferenceValidationAdapter
 
   include LogStash::PluginMixins::EventSupport::EventFactoryAdapter
 
@@ -132,6 +135,12 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   # in collectd. You only need to set this option if the `security_level` is set to
   # `Sign` or `Encrypt`
   config :authfile, :validate => :string
+
+  # Defines a target field for placing decoded fields.
+  # If this setting is omitted, data gets stored at the root (top level) of the event.
+  #
+  # NOTE: the target is only relevant while decoding data into a new event.
+  config :target, :validate => :field_reference
 
   public
   def register
@@ -488,7 +497,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   end # def decode
 
   def generate_event(payload, add_nan_tag)
-    event = event_factory.new_event(payload)
+    event = targeted_event_factory.new_event(payload)
     event.tag @nan_tag if add_nan_tag
     event
   end

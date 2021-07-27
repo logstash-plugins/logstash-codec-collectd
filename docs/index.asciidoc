@@ -64,6 +64,7 @@ Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
 | <<plugins-{type}s-{plugin}-nan_value>> |<<number,number>>|No
 | <<plugins-{type}s-{plugin}-prune_intervals>> |<<boolean,boolean>>|No
 | <<plugins-{type}s-{plugin}-security_level>> |<<string,string>>, one of `["None", "Sign", "Encrypt"]`|No
+| <<plugins-{type}s-{plugin}-target>> |<<string,string>>|No
 | <<plugins-{type}s-{plugin}-typesdb>> |<<array,array>>|No
 |=======================================================================
 
@@ -126,6 +127,26 @@ Prune interval records.  Defaults to `true`.
 
 Security Level. Default is `None`. This setting mirrors the setting from the
 collectd https://collectd.org/wiki/index.php/Plugin:Network[Network plugin]
+
+[id="plugins-{type}s-{plugin}-target"]
+===== `target`
+
+  * Value type is <<string,string>>
+  * There is no default value for this setting.
+
+Define the target field for placing the decoded values. If this setting is not
+set, data will be stored at the root (top level) of the event.
+
+For example, if you want data to be put under the `document` field:
+[source,ruby]
+    input {
+      udp {
+        port => 12345
+        codec => collectd {
+          target => "[document]"
+        }
+      }
+    }
 
 [id="plugins-{type}s-{plugin}-typesdb"]
 ===== `typesdb` 
