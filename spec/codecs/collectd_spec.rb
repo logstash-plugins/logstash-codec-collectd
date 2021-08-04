@@ -94,6 +94,36 @@ describe LogStash::Codecs::Collectd do
       end
       expect(counter).to eq(1)
     end # it "should replace a NaN with a zero and add tag '_collectdNaN' by default"
+
+    context 'with target' do
+
+      subject do
+        LogStash::Codecs::Collectd.new("target" => "[foo]")
+      end
+
+      it "decodes with data into target field" do
+        payload = ["00000015746573742e6578616d706c652e636f6d000008000c14dc4c81831ef78b0009000c00000000400000000002000970696e67000004000970696e67000005001c70696e672d7461726765742e6578616d706c652e636f6d000006000f000101000000000000f87f"].pack('H*')
+        counter = 0
+        subject.decode(payload) do |event|
+          case counter
+          when 0
+            expect(event.include?("host")).to be false
+            expect(event.include?("plugin")).to be false
+
+            expect(event.get("[foo][host]")).to eq("test.example.com")
+            expect(event.get("[foo][plugin]")).to eq("ping")
+            expect(event.get("[foo][type_instance]")).to eq("ping-target.example.com")
+            expect(event.get("[foo][collectd_type]")).to eq("ping")
+            expect(event.get("[foo][value]")).to eq(0)
+            expect(event.get("tags")).to eq(["_collectdNaN"])
+          end
+          counter += 1
+        end
+        expect(counter).to eq(1)
+      end
+
+    end
+
   end # context "None"
 
   context "Replace nan_value and nan_tag with non-default values" do

@@ -1,3 +1,6 @@
+## 3.1.0
+  - Feat: added target configuration + event-factory support [#31](https://github.com/logstash-plugins/logstash-codec-collectd/pull/31)
+
 ## 3.0.8
   - Update gemspec summary
 

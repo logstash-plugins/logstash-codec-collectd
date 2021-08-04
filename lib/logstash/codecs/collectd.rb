@@ -6,12 +6,8 @@ require "logstash/errors"
 require "tempfile"
 require "time"
 
-import "javax.crypto.Mac"
-
-class ProtocolError < LogStash::Error; end
-class HeaderError < LogStash::Error; end
-class EncryptionError < LogStash::Error; end
-class NaNError < LogStash::Error; end
+require 'logstash/plugin_mixins/event_support/event_factory_adapter'
+require 'logstash/plugin_mixins/validator_support/field_reference_validation_adapter'
 
 # Read events from the collectd binary protocol over the network via udp.
 # See https://collectd.org/wiki/index.php/Binary_protocol
@@ -38,14 +34,23 @@ class NaNError < LogStash::Error; end
 #         IgnoreSelected false
 #     </Plugin>
 #     <Plugin network>
-#         <Server "10.0.0.1" "25826">
-#         </Server>
+#         Server "10.0.0.1" "25826"
 #     </Plugin>
 #
 # Be sure to replace `10.0.0.1` with the IP of your Logstash instance.
 #
 class LogStash::Codecs::Collectd < LogStash::Codecs::Base
+
+  extend LogStash::PluginMixins::ValidatorSupport::FieldReferenceValidationAdapter
+
+  include LogStash::PluginMixins::EventSupport::EventFactoryAdapter
+
   config_name "collectd"
+
+  class ProtocolError < LogStash::Error; end
+  class HeaderError < LogStash::Error; end
+  class EncryptionError < LogStash::Error; end
+  class NaNError < LogStash::Error; end
 
   @@openssl_mutex = Mutex.new
 
@@ -108,8 +113,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
 
   # Security Level. Default is `None`. This setting mirrors the setting from the
   # collectd https://collectd.org/wiki/index.php/Plugin:Network[Network plugin]
-  config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR],
-    :default => "None"
+  config :security_level, :validate => [SECURITY_NONE, SECURITY_SIGN, SECURITY_ENCR], :default => "None"
 
   # What to do when a value in the event is `NaN` (Not a Number)
   #
@@ -131,6 +135,12 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
   # in collectd. You only need to set this option if the `security_level` is set to
   # `Sign` or `Encrypt`
   config :authfile, :validate => :string
+
+  # Defines a target field for placing decoded fields.
+  # If this setting is omitted, data gets stored at the root (top level) of the event.
+  #
+  # NOTE: the target is only relevant while decoding data into a new event.
+  config :target, :validate => :field_reference
 
   public
   def register
@@ -467,14 +477,10 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
           # This is better than looping over all keys every time.
           collectd.delete('type_instance') if collectd['type_instance'] == ""
           collectd.delete('plugin_instance') if collectd['plugin_instance'] == ""
-          if add_nan_tag
-            collectd['tags'] ||= []
-            collectd['tags'] << @nan_tag
-          end
           # This ugly little shallow-copy hack keeps the new event from getting munged by the cleanup
           # With pass-by-reference we get hosed (if we pass collectd, then clean it up rapidly, values can disappear)
           if !drop # Drop the event if it's flagged true
-            yield LogStash::Event.new(collectd.dup)
+            yield generate_event(collectd.dup, add_nan_tag)
           else
             raise(NaNError)
           end
@@ -485,8 +491,15 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
         end
       end
     end # while payload.length > 0 do
-  rescue EncryptionError, ProtocolError, HeaderError, NaNError
+  rescue EncryptionError, ProtocolError, HeaderError, NaNError => e
     # basically do nothing, we just want out
+    @logger.debug("Decode failure", payload: payload, message: e.message)
   end # def decode
+
+  def generate_event(payload, add_nan_tag)
+    event = targeted_event_factory.new_event(payload)
+    event.tag @nan_tag if add_nan_tag
+    event
+  end
 
 end # class LogStash::Codecs::Collectd
