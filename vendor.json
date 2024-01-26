@@ -1,5 +1,5 @@
 [{
-        "sha1": "a90fe6cc53b76b7bdd56dc57950d90787cb9c96e",
-        "url": "https://collectd.org/files/collectd-5.4.0.tar.gz",
+        "sha1": "69d00bf0589adc53c65e48ec18fe636b3efe2306",
+        "url": "https://github.com/collectd/collectd/archive/refs/tags/collectd-5.4.2.tar.gz",
         "files": [ "/src/types.db" ]
 }]
