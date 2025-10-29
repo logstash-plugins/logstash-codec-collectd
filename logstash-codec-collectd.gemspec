@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'logstash-mixin-validator_support', '~> 1.0'
 
   # filetools and rakelib
-  s.add_runtime_dependency "minitar", "~> 1"
+  s.add_runtime_dependency "archive-tar-minitar", "~> 0.12"
 
   s.add_development_dependency 'logstash-devutils'
   s.add_development_dependency 'insist'
