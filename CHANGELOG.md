@@ -1,3 +1,6 @@
+## 3.1.1
+  - Fix: replace deprecated `File.exists?` with `File.exist?` for Ruby 3.4 (JRuby 10) compatibility [#36](https://github.com/logstash-plugins/logstash-codec-collectd/pull/36)
+
 ## 3.1.0
   - Feat: added target configuration + event-factory support [#31](https://github.com/logstash-plugins/logstash-codec-collectd/pull/31)
 

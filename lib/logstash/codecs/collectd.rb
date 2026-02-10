@@ -148,7 +148,7 @@ class LogStash::Codecs::Collectd < LogStash::Codecs::Base
     init_lambdas!
     if @typesdb.nil?
       @typesdb = ::File.expand_path('../../../vendor/types.db', ::File.dirname(__FILE__))
-      if !File.exists?(@typesdb)
+      if !File.exist?(@typesdb)
         raise "You must specify 'typesdb => ...' in your collectd input (I looked for '#{@typesdb}')"
       end
       @logger.debug("Using types.db", :typesdb => @typesdb.to_s)
